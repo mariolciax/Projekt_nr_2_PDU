@@ -1,27 +1,20 @@
-library(data.table)
-options(stringsAsFactors=FALSE) 
-PostLinks <- data.table(read.csv("~/R/travel_stackexchange_com/PostLinks.csv"))
-#head(PostLinks)
-Posts <- data.table(read.csv("~/R/travel_stackexchange_com/Posts.csv"))
-#head(Posts)
-library(data.table)
+df_table_3 <- function(df1 = Postlinks, df2 = Posts){
+  library(data.table)
+  options(stringsAsFactors=FALSE) 
+  PostLinks <- data.table(read.csv("~/R/travel_stackexchange_com/PostLinks.csv"))
+  Posts <- data.table(read.csv("~/R/travel_stackexchange_com/Posts.csv"))
+  RelatedTab <- PostLinks[, .N, by = RelatedPostId]
+  setnames(RelatedTab, old = "N", new = "NumLinks")
+  
+  ###RelatedTab[, , by = "RelatedPostId"]
+  setnames(RelatedTab, old = "RelatedPostId", new = "PostId")
+  join__2<- RelatedTab[Posts, on = "PostId == Id", nomatch = 0]
+  bezwyjatku <- join__2[PostTypeId == 1 ]
+  wyborkolumn <- bezwyjatku[, list(Title, NumLinks)]
+  koncowa4 <- wyborkolumn[order(-NumLinks)]
+  koncowa4
 
-RelatedTab <- PostLinks[, .N, by = RelatedPostId]
-
-setnames(RelatedTab, old = "N", new = "NumLinks")
-
-###RelatedTab[, , by = "RelatedPostId"]
-
-setnames(RelatedTab, old = "RelatedPostId", new = "PostId")
-join__2<- RelatedTab[Posts, on = "PostId == Id", nomatch = 0]
-
-bezwyjatku <- join__2[PostTypeId == 1 ]
-wyborkolumn <- bezwyjatku[, list(Title, NumLinks)]
-koncowa4 <- wyborkolumn[order(-NumLinks)]
-koncowa4
-
-
-
+}
 
 
 
