@@ -2,13 +2,14 @@
   options(stringsAsFactors=FALSE) 
   PostLinks <- read.csv("~/R/travel_stackexchange_com/PostLinks.csv")
   Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
+  head(Posts)
   
 df_base_3 <- function(df1 = PostLinks, df2 = Posts, ...){  
-  RelatedTab <- aggregate(x = PostLinks$RelatedPostId, by= PostLinks["RelatedPostId"], FUN=length)
+  RelatedTab <- aggregate(x = PostLinks$RelatedPostId, by = PostLinks["RelatedPostId"], FUN=length)
   colnames(RelatedTab)[which(names(RelatedTab) == "x")] <- "NumLinks"
   colnames(RelatedTab)[which(names(RelatedTab) == "RelatedPostId")] <- "PostId"
   
-  join <- merge(RelatedTab, Posts, all.x = FALSE, all.y = FALSE, by.y="Id", by.x = "PostId")
+  join <- merge(RelatedTab, Posts, all.x = FALSE, all.y = FALSE, by.x="PostId", by.y = "Id")
   
   bezpewnychdanych <- join[join$PostTypeId == 1, ,drop=FALSE]
   head(bezpewnychdanych)
@@ -17,9 +18,9 @@ df_base_3 <- function(df1 = PostLinks, df2 = Posts, ...){
   koncowa2 <- posort[ , wybrane_kol, drop=FALSE]
   koncowa2
 }
-
-
 df_base_3()
+
+
 
 
 #colnames(PostLinks)[which(names(PostLinks) == "PostId")] <- "RelatedPostId"

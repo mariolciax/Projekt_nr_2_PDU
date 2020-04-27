@@ -4,16 +4,16 @@ df_dplyr_2 <- function(){
   Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
   Users <- read.csv("~/R/travel_stackexchange_com/Users.csv")
   library("dplyr")
-  library("magrittr")
+
+  inner <- inner_join(Tags, Posts, by = c("WikiPostId" = "Id")) 
   
-  inner <- inner_join(Tags, Posts, by = c("WikiPostId"= "Id")) 
-  as.data.frame(inner)
   inner2<- inner_join(inner, Users, by = c("OwnerUserId"="AccountId"))
-  wybor_kolumn <-inner2 %>% 
+  
+  wybor_kolumn <- inner2 %>% 
     select(TagName, Count, OwnerUserId, Age, Location, DisplayName)
   bez_wyjatku <- wybor_kolumn %>%
     filter( OwnerUserId != -1)
-  final3 <- group_by(bez_wyjatku, Count)
+  final3 <-  arrange(bez_wyjatku, desc(Count))
   final3
 }
 

@@ -5,8 +5,10 @@ Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
 library(dplyr)
 RelatedTab <- count(PostLinks, RelatedPostId)
 RelatedTab <- rename(RelatedTab, NumLinks = n)
-RelatedTab %>%
-  group_by(RelatedPostId)
+k<- RelatedTab %>%
+  group_by(RelatedPostId)%>%
+  tally()
+
 RelatedTab <- rename(RelatedTab, PostId = RelatedPostId)
 
 inner__1 <- inner_join(RelatedTab, Posts, by = c("PostId"= "Id")) 
