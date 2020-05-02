@@ -1,0 +1,119 @@
+\documentclass[12pt]{article}
+\usepackage[cp1250]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+
+
+
+\title{\textbf{Raport pracy projektowej nr 2} \vspace{-4ex}}
+\date{} % clear date
+\begin{document}
+\maketitle
+\textbf{} \hfill
+\textbf{Mariola Bartosik} \hfill
+\textbf{} \hfill
+
+<<echo = FALSE, eval = TRUE, results='hide'>>=
+source("Bartosik_Mariola_305952_MXMX_pp2.R")
+@
+
+\subsection*{Wstep}
+
+W raporcie przedstawie wyniki swoich badan prowadzonych na ramkach danych, dostepnych na stronie internetowej http://www.gagolewski.com/resources/data/. \\
+Korzysta³am z danych przedstawonych poni¿ej. 
+
+<<echo = TRUE, eval = TRUE, results='hide'>>=
+options(stringsAsFactors=FALSE) 
+Tags <- read.csv("~/R/travel_stackexchange_com/Tags.csv") 
+Badges <- read.csv("~/R/travel_stackexchange_com/Badges.csv")
+Comments <- read.csv("~/R/travel_stackexchange_com/Comments.csv")
+Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
+Users <- read.csv("~/R/travel_stackexchange_com/Users.csv")
+Votes <- read.csv("~/R/travel_stackexchange_com/Votes.csv")
+PostLinks <- read.csv("~/R/travel_stackexchange_com/PostLinks.csv")
+@
+
+Kazde zadanie wykonane jest na 4 sposoby, za pomoca
+\begin{itemize}
+  \item 
+  funkcji bazowych R,
+  \item
+  funkcji z biblioteki sqldf,
+  \item
+  funkcji z biblioteki dplyr,
+  \item
+  funkcji z biblioteki data.table.
+\end{itemize}
+
+Dodatkowo porównam czasy wykonania napisanych przeze mnie funkcji przy u¿yciu jednego wywo³ania microbenchmark::microbenchmark().\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+
+
+
+\subsection*{Zadanie 1}
+
+Zadanie nr 1 bazowa³o na ramce danych Posts. Wybra³am z kolumny PostTypeId wiersze, z wartosciami rownymi 1, z kolumny FavoriteCount wiersze z wartosciami wiekszymi rownymi 25 oraz  z kolumny ViewCount wiersze z wartosciami wiekszymi rownymi 10000. Na samym koñcu wyodrebni³am kolumny o nazwach: "Title, Score, ViewCount, FavoriteCount ". \\ \\
+Wyniki w 4 przypadkach by³y identyczne. Uzyska³am ramke z czterema kolumnami i dziewietnastoma wierszami.
+
+<<>>=
+head(df_base_1(), 5)
+
+@
+
+Porówna³am czasy wykonania napisanych przeze mnie funkcji w tym zadaniu przy u¿yciu wywolania microbenchmark::microbenchmark(). 
+
+
+
+
+\subsection*{Zadanie 2}
+Zadanie nr 2 polega³o na wybraniu odpowiednich wartoœci z kolumny OwnerUserId (ro¿nych od -1) z ramki Tags. Korzysta³am dwykrotnie z inner join.\\
+Z³aczenie tego typu zachowuje tylko wiersze wystepujace w obydwu z³aczonych zbiorach.\\ Zlaczeniu uleg³y kolumny WikiPostId oraz Posts z ramek Tags i Posts, a tak¿e kolumny AccountId i OwnerUserId z ramek Tags i Users. Posortowa³am malejaco kolumne powstala po zliczeniu oraz wybra³am kolumny TagName, Count, OwnerUserId, Age, Location, DisplayName.
+<<>>=
+head(df_base_2(), 5)
+
+@
+
+\subsection*{Zadanie 3}
+Zadanie nr 3 polega³o na pogrupowaniu wzgledem RelatedPostId. Zliczy³am wartosci w RelatedPostId i zapisa³am kolumnw z wartoœciami zliczenia jako NumLinks. Poza tym nale¿a³o zmieciæ nazwe RelatedPostId na PostId, a tak¿e zapisac wynik w postaci ramki danych o nazwie RelatedTab. Kolejnym krokiem by³o z³aczenie z ramek danych RelatedTab i Posts kolumn PostId i Id zachowujac wiersze wystepujace w obydwu kolumnach. Nastepnie wybra³am wartoœci w kolumnie PostTypeId równe 1. Posortowa³am malejaco kolumne NumLinks oraz wybra³am poszczególne kolumny takie jak TagName, Count, OwnerUserId, Age, Location, DisplayName.
+
+<<>>=
+head(df_base_3(), 5)
+
+@
+
+\subsection*{Zadanie 4}
+Zadanie nr 4 na poczatku polega³o na znalezieniu odpowiednich wartosci Name w ramce Badges. Takich, dla ktorych dane w kolumnie Class maja wartoœæ równa 1. 
+Pogrupowa³am ramke wzgledem Name. Wybra³am wartoœci po zliczeniu wieksze od dwóch i mniejsze od 10.
+Potem wybra³am tylko te wartoœci Name z Users, które dostaliœmy po wyselekcjowaniu z Badges. Tak¿e, nale¿a³o wybraæ dane, dla których wartoœæ z kolumny Class jest równa 1. Zapisa³am to jako ValuableBadges.
+Z³aczy³am tak jak wy¿ej z ramek Users i Badges odpowiednio kolumny UserId i Id.
+Na samym koñcu wybra³am odpowiednio unikalne wartosci z kolumn Id, DisplayName, Reputation, Age, Location.
+
+<<>>=
+head(df_base_4(), 5)
+
+@
+
+\subsection*{Zadanie 5}
+Zadanie nr 5 polega³o na wybraniu z ramki Votes kolumny PostId, gdzie wartoœci w kolumnie VoteTypeId sa równe 2. Pogrupowa³am PostId. Zliczy³am wartoœci i zapisa³am jako UpVotes. Powsta³a nowa ramka, ktora zapisa³am jako UpVotesTab. Analogicznie postepowa³am przy tworzeniu DownVotesTab, gdzie zliczone wartosci zapisa³am jako DownVotes, a wczesniej z kolumny VoteTypeId wybra³am wartoœci równe 3. Z³aczy³am za pomoca left join kolumny PostId z obu ramek. Zlaczenie tego typu wybiera ka¿dy wiersz z pierwszego zbioru, do³aczajac do niego wszystkie pasujace wiersze z drugiego zbioru wystepujace w lewym zbiorze. Wybra³am kolumny PostId, UpVotes, DownVotes, gdzie kolumnie DownVotes wszystkie wartoœci nieokreœlone zosta³y zamienione zerem. 
+<<>>=
+head(df_base_5(), 5)
+@
+
+\subsection*{Zadanie 6}
+Zadanie nr 6 by³o podobne do zadania 5, ró¿nica, polega³a na kolejnoœci w z³aczeniach. Przez co dosta³am dwie ró¿ne ramki danych. Nastepnie naleza³o po³aczyæ je i wybraæ kolumny PostId i kolumne, kotra powsta³a po odjeciu UpVotes od DownVotes.
+<<>>=
+head(df_sql_6(), 4)
+@
+
+\end{document}
