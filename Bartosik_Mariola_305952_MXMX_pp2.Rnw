@@ -1,0 +1,46 @@
+\documentclass[12pt]{article}
+\usepackage[cp1250]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+
+\begin{document}
+\title{Raport pracy projektowej nr 2}
+\author{Mariola Bartosik}
+\maketitle 
+
+
+<<echo = FALSE, eval = TRUE, results='hide'>>=
+source("Bartosik_Mariola_305952_MXMX_pp2.R")
+@
+
+\section*{Wstęp}
+Praca projektowa polegała na analizie danych z poszczgolnych baz danych
+
+\subsection*{Zadanie 1}
+Zadanie polegalo na 
+
+
+\subsection*{Zadanie 2}
+Zadanie nr 2 polegalo 
+
+
+\subsection*{Zadanie 3}
+Zadanie nr 3 polegalo 
+
+
+\subsection*{Zadanie 4}
+Zadanie nr 4 polegalo 
+
+
+\subsection*{Zadanie 5}
+Zadanie nr 5 polegalo 
+
+
+\subsection*{Zadanie 6}
+Zadanie nr 6 polegalo 
+
+
+\end{document}

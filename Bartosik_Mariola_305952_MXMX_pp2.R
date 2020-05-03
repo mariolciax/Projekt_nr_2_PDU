@@ -21,7 +21,7 @@ df_base_1 <- function(df1 = Posts,...){
   options(stringsAsFactors=FALSE) 
   Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
   wybrane_kolumny <- c("Title","Score",  "ViewCount", "FavoriteCount")
-  pierwsza_czesc <- df1[df1$PostTypeId == 1 & df1$FavoriteCount >= 25 & df1$ViewCount >= 10000, ,drop = FALSE ]
+  pierwsza_czesc <- Posts[Posts$PostTypeId == 1 & Posts$FavoriteCount >= 25 & Posts$ViewCount >= 10000, ,drop = FALSE ]
   
   ostateczna <- na.omit(pierwsza_czesc[ , wybrane_kolumny, drop = FALSE ], cols=wybrane_kolumny)
   ostateczna
@@ -33,7 +33,7 @@ df_dplyr_1 <- function(df1 = Posts, ...){
   options(stringsAsFactors=FALSE) 
   Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
   library("dplyr")
-  pomocnicza3 <- filter(Posts,  PostTypeId == 1, FavoriteCount >= 25, ViewCount >= 1000)
+  pomocnicza3 <- filter(Posts,  PostTypeId == 1, FavoriteCount >= 25, ViewCount >= 10000)
   ostateczna3 <- select(pomocnicza3, Title, Score, ViewCount, FavoriteCount)
   ostateczna3 
 }
@@ -51,6 +51,7 @@ df_table_1 <- function(df1 = Posts, ...){
   pomocnicza2<- pomocnicza1[ViewCount >= 10000]
   
   ostateczna4 <- pomocnicza2[, list(Title, Score, ViewCount, FavoriteCount)]
+  ostateczna4
   
 }
 
@@ -85,7 +86,7 @@ df_base_2 <- function(df1 = Tags, df2 = Posts, df3 = Users){
     bez_pewnych_danych <- join_2[join_2$OwnerUserId != -1, ,drop=FALSE]
     posortowana <- bez_pewnych_danych[with(bez_pewnych_danych, order(-Count)), ]
     wybrane_kolumny <- c("TagName", "Count", "OwnerUserId", "Age", "Location", "DisplayName")
-    final2 <- posortowana[ , wybrane_kolumny, drop=FALSE]
+    final2 <- (posortowana[ , wybrane_kolumny, drop=FALSE])
 }
   
 
@@ -408,6 +409,7 @@ df_base_6 <- function(df1 = Votes, ...){
   rozwiazanie2 <- cbind(posrednia0$PostId, rozwiazanie2)
   colnames(rozwiazanie2)[which(names(rozwiazanie2) == "posrednia0$PostId")] <- "PostId"
   colnames(rozwiazanie2)[2] <- "Votes"
+  rozwiazanie2
  
 }
 
@@ -439,6 +441,7 @@ df_dplyr_6 <- function(df1 = Votes, ...){
   rozwiazanie_ <- transmute(posrednia, UpVotes - DownVotes)
   rozwiazanie3 <-rename(rozwiazanie_, Votes = ("UpVotes - DownVotes") )
   rozwiazanie3 <-  bind_cols(samo_PostId, rozwiazanie3)
+  rozwiazanie3
 }
 
 
@@ -464,8 +467,6 @@ df_table_6 <- function(df1 = Votes, ...){
   rozwiazanie4 <- union[, .(UpVotes-DownVotes)]
   rozwiazanie4 <- base::cbind(samo_PostId, rozwiazanie4)
   roozwiazania4 <- setnames(rozwiazanie4, old = "V1", new = "Votes")
+  roozwiazania4
 }
-
-
-
 
