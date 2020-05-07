@@ -20,10 +20,8 @@ df_sql_1 <- function(df1 = Posts, ...){
 df_base_1 <- function(df1 = Posts,...){
   options(stringsAsFactors=FALSE) 
   Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
-  wybrane_kolumny <- c("Title","Score",  "ViewCount", "FavoriteCount")
-  pierwsza_czesc <- Posts[Posts$PostTypeId == 1 & Posts$FavoriteCount >= 25 & Posts$ViewCount >= 10000, ,drop = FALSE ]
-  
-  ostateczna <- na.omit(pierwsza_czesc[ , wybrane_kolumny, drop = FALSE ], cols=wybrane_kolumny)
+  wybor <- Posts[Posts$PostTypeId == 1 & Posts$FavoriteCount >= 25 & Posts$ViewCount >= 10000, ,drop = FALSE ]
+  ostateczna <- na.omit(wybor[ , c("Title","Score",  "ViewCount", "FavoriteCount"), drop = FALSE ], cols=c("Title","Score",  "ViewCount", "FavoriteCount"))
   ostateczna
 }
 
@@ -45,11 +43,9 @@ df_table_1 <- function(df1 = Posts, ...){
   library("data.table")
   options(stringsAsFactors=FALSE) 
   Posts <- data.table(read.csv("~/R/travel_stackexchange_com/Posts.csv"))
-  
   pomocnicza <- Posts[PostTypeId == 1]
   pomocnicza1<- pomocnicza[FavoriteCount >= 25]
   pomocnicza2<- pomocnicza1[ViewCount >= 10000]
-  
   ostateczna4 <- pomocnicza2[, list(Title, Score, ViewCount, FavoriteCount)]
   ostateczna4
   
@@ -80,13 +76,13 @@ df_base_2 <- function(df1 = Tags, df2 = Posts, df3 = Users){
     Tags <- read.csv("~/R/travel_stackexchange_com/Tags.csv") 
     Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
     Users <- read.csv("~/R/travel_stackexchange_com/Users.csv")
-    
     join_1 <- merge(Tags, Posts, all.x = FALSE, all.y = FALSE, by.y="Id", by.x = "WikiPostId")
     join_2 <- merge(join_1, Users, all.x = FALSE, all.y = FALSE, by.x ="OwnerUserId", by.y="AccountId")
     bez_pewnych_danych <- join_2[join_2$OwnerUserId != -1, ,drop=FALSE]
     posortowana <- bez_pewnych_danych[with(bez_pewnych_danych, order(-Count)), ]
     wybrane_kolumny <- c("TagName", "Count", "OwnerUserId", "Age", "Location", "DisplayName")
     final2 <- (posortowana[ , wybrane_kolumny, drop=FALSE])
+    final2<-final2[-which(apply(final2,1,function(x)all(is.na(x)))),]
 }
   
 
@@ -133,14 +129,13 @@ df_sql_3 <- function(df1 = PostLinks, df2 = Posts, ...){
   PostLinks <- read.csv("~/R/travel_stackexchange_com/PostLinks.csv")
   Posts <- read.csv("~/R/travel_stackexchange_com/Posts.csv")
   library(sqldf)
-  koncowa22 <- sqldf("SELECT Posts.Title, RelatedTab.NumLinks 
+  koncowa2 <- sqldf("SELECT Posts.Title, RelatedTab.NumLinks 
                 FROM (SELECT RelatedPostId AS PostId, 
                 COUNT(*) AS NumLinks 
                 FROM PostLinks GROUP BY RelatedPostId) AS RelatedTab 
                 JOIN Posts ON RelatedTab.PostId=Posts.Id 
                 WHERE Posts.PostTypeId=1 ORDER BY NumLinks DESC ")
-  
-  as.data.frame(koncowa22)
+  koncowa2
 }
 
 
@@ -149,9 +144,7 @@ df_sql_3 <- function(df1 = PostLinks, df2 = Posts, ...){
     RelatedTab <- aggregate(x = PostLinks$RelatedPostId, by = PostLinks["RelatedPostId"], FUN=length)
     colnames(RelatedTab)[which(names(RelatedTab) == "x")] <- "NumLinks"
     colnames(RelatedTab)[which(names(RelatedTab) == "RelatedPostId")] <- "PostId"
-    
     join <- merge(RelatedTab, Posts, all.x = FALSE, all.y = FALSE, by.x="PostId", by.y = "Id")
-    
     bezpewnychdanych <- join[join$PostTypeId == 1, ,drop=FALSE]
     head(bezpewnychdanych)
     posort <- bezpewnychdanych[with(bezpewnychdanych, order(-NumLinks)), ]
@@ -267,7 +260,6 @@ df_table_4 <- function(df1=Badges, df2=Users, ...){
   options(stringsAsFactors=FALSE) 
   Users <- data.table(read.csv("~/R/travel_stackexchange_com/Users.csv"))
   Badges <- data.table(read.csv("~/R/travel_stackexchange_com/Badges.csv"))
-  
   bezwyjatku <- Badges[Class == 1 ]
   pogrupowana<- bezwyjatku[, .N, by = Name]
   wybrane <- pogrupowana[N >=2 & N<= 10 ]
@@ -313,9 +305,8 @@ df_base_5 <- function(df1 = Votes, ...){
     DownVotesTab <- aggregate(x = wybrana2$PostId, by = wybrana2["PostId"], FUN=length)
     colnames(DownVotesTab)[which(names(DownVotesTab) == "x")] <- "DownVotes"
     left_join <- merge(UpVotesTab, DownVotesTab, all.x=TRUE, all.y = FALSE, by.x="PostId", by.y = "PostId")
-    #left_join$DownVotes<- ifelse(isNull(left_join$DownVotes), 0, left_join$DownVotes)
-    
     left_join[is.na(left_join)] <- 0
+    left_join$DownVotes <- as.integer(left_join$DownVotes)
     wynikowa2 <- left_join
 }
 
@@ -401,8 +392,10 @@ df_base_6 <- function(df1 = Votes, ...){
   left_join <- merge(UpVotesTab, DownVotesTab, all.x=TRUE, all.y = FALSE, by.x="PostId", by.y = "PostId")
   left_join2 <- merge(DownVotesTab, UpVotesTab, all.x=TRUE, all.y = FALSE, by.x="PostId", by.y = "PostId")
   left_join[is.na(left_join)] <- 0
+  left_join$DownVotes <- as.integer(left_join$DownVotes)
   posrednia1 <- left_join
   left_join2[is.na(left_join2)] <- 0
+  left_join2$UpVotes <- as.integer(left_join2$UpVotes)
   posrednia2 <- left_join2
   posrednia0 <-union(posrednia1, posrednia2)
   rozwiazanie2 <- as.data.frame(posrednia0$UpVotes-posrednia0$DownVotes)
@@ -431,7 +424,6 @@ df_dplyr_6 <- function(df1 = Votes, ...){
   DownVotesTab <- rename(DownVotesTab, DownVotes = n)
   loczenie <- left_join(UpVotesTab, DownVotesTab, by = c("PostId" = "PostId"))
   loczenie2 <-left_join(DownVotesTab, UpVotesTab, by = c("PostId" = "PostId"))
-  #DF <- mutate(loczenie, DownVotes = base::replace(DownVotes, DownVotes = NA, 0L))
   posrednia1<- loczenie %>% 
     mutate(DownVotes = coalesce(DownVotes, 0L))
   posrednia2<- loczenie2 %>%
